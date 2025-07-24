@@ -13,3 +13,11 @@ class SQLiteManager(DatabaseManager):
     def _get_connection(self) -> Connection:
         return sqlite3.connect(self.path)
 
+    def add_currency(self):
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                "INSERT INTO Currencies (Code, FullName, Sign) VALUES (?, ?, ?)",
+                ("1", "1", "1")
+            )
+
