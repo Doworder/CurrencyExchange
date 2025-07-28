@@ -30,9 +30,17 @@ class SQLiteManager(DatabaseManager):
             cursor = conn.cursor()
             cursor.execute(sql, parameters)
 
-    def add_rate(self, entity):
-        sql = "INSERT INTO ExchangeRates (BaseCurrencyId, TargetCurrencyId, Rate) VALUES (?, ?, ?)"
-        parameters = (1, 1, 0.99)
+    def add_rate(self, new_rate):
+        sql = '''INSERT INTO ExchangeRates (BaseCurrencyId, TargetCurrencyId, Rate) 
+                        VALUES (
+                        (SELECT ID FROM Currencies WHERE Code == ?), 
+                        (SELECT ID FROM Currencies WHERE Code == ?), 
+                        ?)'''
+        parameters = (
+            new_rate.base_currency,
+            new_rate.target_currency,
+            new_rate.rate
+        )
         with self._get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute(sql, parameters)
