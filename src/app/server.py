@@ -1,7 +1,10 @@
 import logging
 import sqlite3
 from http.server import BaseHTTPRequestHandler, HTTPServer
+from pathlib import Path
 from urllib.parse import parse_qs
+
+from app.dao import SQLiteManager
 from app.dto import AddCurrencyDTO, AddRateDTO
 
 
