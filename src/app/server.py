@@ -23,11 +23,16 @@ class CurrencyHandler(BaseHTTPRequestHandler):
     def _add_currency[T](self, entity: T):
         db = SQLiteManager(Path("data/currency.db"))
         db.add_currency(entity)
+        
+    def _send_success_response(self):
+        self._send_response(201)
 
     def _send_response(self, status_code: int, message=None):
         self.send_response(status_code, message)
         self.send_header('Content-type', 'text/html')
         self.end_headers()
+        # self.wfile.write(json.dumps(data).encode("utf-8"))
+
 
 def main():
     server_address = ('', 8000)
