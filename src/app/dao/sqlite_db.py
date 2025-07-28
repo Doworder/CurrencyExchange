@@ -37,5 +37,15 @@ class SQLiteManager(DatabaseManager):
             cursor = conn.cursor()
             cursor.execute(sql, parameters)
 
+    def get_currency(self, entity):
+        sql = "SELECT * from Currencies WHERE Code = ?"
+        parameters = entity
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(sql, parameters)
+            currency_data = cursor.fetchone()
+
+        return currency_data
+
 
 
