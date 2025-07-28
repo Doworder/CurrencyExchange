@@ -50,5 +50,8 @@ class SQLiteManager(DatabaseManager):
     def get_rate(self, entity):
         pass
 
+    def update_rate(self, entity):
+        pass
+
 
 
