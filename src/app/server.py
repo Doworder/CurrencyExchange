@@ -59,6 +59,12 @@ class CurrencyHandler(BaseHTTPRequestHandler):
                     target_currency=query_data.get("targetCurrencyCode")[0],
                     rate=float(query_data.get("rate")[0])
                 )
+                try:
+                    self._add_rate(new_rate)
+                    self._send_success_response()
+
+                except sqlite3.IntegrityError:
+                    self._send_conflict_rate_error()
 
             case _:
                 self.send_error(404)
