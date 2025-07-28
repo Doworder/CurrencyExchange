@@ -31,7 +31,8 @@ class CurrencyHandler(BaseHTTPRequestHandler):
 
         content_length = int(self.headers.get("Content-Length", 0))
         post_data = self.rfile.read(content_length)
-        query_data = parse_qs(post_data.decode("utf-8"))
+        query_data: dict[str, list[str]] = parse_qs(post_data.decode("utf-8"))
+        logger.debug(f'Query data: {query_data}')
 
         path_part = self.path.split('/')
         match path_part[-1]:
