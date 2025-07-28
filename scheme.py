@@ -8,20 +8,28 @@ try:
     cursor.execute('''
                 CREATE TABLE Currencies(
                     ID INTEGER PRIMARY KEY AUTOINCREMENT, 
-                  Code VARCHAR(3) UNIQUE, 
-              FullName VARCHAR, 
-                  Sign VARCHAR
+                  Code VARCHAR(3) NOT NULL UNIQUE, 
+              FullName VARCHAR(100), 
+                  Sign VARCHAR(5)
                   )
+    ''')
+    cursor.execute('''
+                CREATE UNIQUE INDEX idx_currencies_code 
+                       ON Currencies(Code)
     ''')
     cursor.execute('''
                 CREATE TABLE ExchangeRates(
                     ID INTEGER PRIMARY KEY AUTOINCREMENT, 
-        BaseCurrencyId INT UNIQUE, 
-      TargetCurrencyId INT UNIQUE, 
-                  Rate NUMERIC(6), 
-                       FOREIGN KEY (ID)  REFERENCES Currencies (ID), 
-                       FOREIGN KEY (ID)  REFERENCES Currencies (ID)
+        BaseCurrencyId INT NOT NULL, 
+      TargetCurrencyId INT NOT NULL, 
+                  Rate NUMERIC(6) NOT NULL, 
+                       FOREIGN KEY (BaseCurrencyId)  REFERENCES Currencies (ID), 
+                       FOREIGN KEY (TargetCurrencyId)  REFERENCES Currencies (ID)
                   )
+    ''')
+    cursor.execute('''
+                CREATE UNIQUE INDEX idx_exchange_rates_pair 
+                       ON ExchangeRates(BaseCurrencyId, TargetCurrencyId)
     ''')
 except OperationalError as e:
     print(e)
