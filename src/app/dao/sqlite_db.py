@@ -1,8 +1,12 @@
+import logging
 import sqlite3
 from pathlib import Path
 from sqlite3 import Connection
 
-from src.app.dao import DatabaseManager
+from app.dao import DatabaseManager
+
+
+logger = logging.getLogger(__name__)
 
 
 class SQLiteManager(DatabaseManager):
@@ -11,6 +15,8 @@ class SQLiteManager(DatabaseManager):
         self.path = db_path
 
     def _get_connection(self) -> Connection:
+        logger.debug(f'Path to database: {self.path}')
+        logger.debug(f'Path to run module: {__file__}')
         return sqlite3.connect(self.path)
 
     def add_currency(self):
