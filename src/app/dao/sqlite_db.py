@@ -19,13 +19,19 @@ class SQLiteManager(DatabaseManager):
         logger.debug(f'Path to run module: {__file__}')
         return sqlite3.connect(self.path)
 
-    def add_currency(self):
+    def add_currency[T](self, new_currency: T ):
+        sql = "INSERT INTO Currencies (Code, FullName, Sign) VALUES (?, ?, ?)"
+        parameters = (
+            new_currency.currency_code,
+            new_currency.full_name,
+            new_currency.sign
+        )
         with self._get_connection() as conn:
             cursor = conn.cursor()
-            cursor.execute(
-                "INSERT INTO Currencies (Code, FullName, Sign) VALUES (?, ?, ?)",
-                ("1", "1", "1")
-            )
+            cursor.execute(sql, parameters)
+
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
 
     def add_rate(self):
         with self._get_connection() as conn:
