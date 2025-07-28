@@ -1,4 +1,7 @@
+import sqlite3
 from http.server import BaseHTTPRequestHandler, HTTPServer
+from urllib.parse import parse_qs
+from app.dto import AddCurrencyDTO, AddRateDTO
 
 
 class CurrencyHandler(BaseHTTPRequestHandler):
@@ -13,6 +16,42 @@ class CurrencyHandler(BaseHTTPRequestHandler):
         self.send_header('Content-type', 'text/html')
         self.end_headers()
         self.wfile.write(b"POST method called.")
+        content_type = self.headers.get("Content-Type", "")
+        if content_type != "application/x-www-form-urlencoded":
+            self.send_error(400, "Content-Type must be application/x-www-form-urlencoded")
+            return
+
+        content_length = int(self.headers.get("Content-Length", 0))
+        post_data = self.rfile.read(content_length)
+        query_data = parse_qs(post_data.decode("utf-8"))
+
+        path_part = self.path.split('/')
+        match path_part[-1]:
+            case "currencies":
+                new_currency = AddCurrencyDTO(
+                    currency_code=query_data.get("code")[0],
+                    full_name=query_data.get("name")[0],
+                    sign=query_data.get("sign")[0]
+                )
+                try:
+                    self._add_currency(new_currency)
+                    self._send_success_response()
+
+                except sqlite3.IntegrityError:
+                    self._send_conflict_error(new_currency.currency_code)
+
+                except sqlite3.OperationalError as e:
+                    self._send_server_error()
+
+            case "exchangeRates":
+                new_rate = AddRateDTO(
+                    base_currency=query_data.get("baseCurrencyCode")[0],
+                    target_currency=query_data.get("targetCurrencyCode")[0],
+                    rate=float(query_data.get("rate")[0])
+                )
+
+            case _:
+                self.send_error(404)
 
     def do_PATCH(self):
         self.send_response(200)
