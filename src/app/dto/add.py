@@ -2,14 +2,14 @@ from dataclasses import dataclass
 
 
 @dataclass
-class CurrencyAddDTO:
+class AddCurrencyDTO:
     currency_code: str
     full_name: str
     sign: str
 
 
 @dataclass
-class RateAddDTO:
+class AddRateDTO:
     base_currency: str
     target_currency: str
     rate: float
