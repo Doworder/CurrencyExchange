@@ -1,7 +1,12 @@
+import logging
 import sqlite3
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import parse_qs
 from app.dto import AddCurrencyDTO, AddRateDTO
+
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.DEBUG)
 
 
 class CurrencyHandler(BaseHTTPRequestHandler):
@@ -33,6 +38,7 @@ class CurrencyHandler(BaseHTTPRequestHandler):
                     full_name=query_data.get("name")[0],
                     sign=query_data.get("sign")[0]
                 )
+                logger.debug(f'New currency DTO created: {new_currency}')
                 try:
                     self._add_currency(new_currency)
                     self._send_success_response()
@@ -41,6 +47,7 @@ class CurrencyHandler(BaseHTTPRequestHandler):
                     self._send_conflict_error(new_currency.currency_code)
 
                 except sqlite3.OperationalError as e:
+                    logger.debug(f'Server error: {e.sqlite_errorcode}, {e.sqlite_errorname}')
                     self._send_server_error()
 
             case "exchangeRates":
