@@ -79,7 +79,11 @@ class CurrencyHandler(BaseHTTPRequestHandler):
     def _add_currency[T](self, entity: T):
         db = SQLiteManager(Path("data/currency.db"))
         db.add_currency(entity)
-        
+
+    def _add_rate[T](self, entity: T):
+        db = SQLiteManager(Path("data/currency.db"))
+        db.add_rate(entity)
+
     def _send_success_response(self):
         self._send_response(201)
 
