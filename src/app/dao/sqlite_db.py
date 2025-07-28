@@ -47,5 +47,8 @@ class SQLiteManager(DatabaseManager):
 
         return currency_data
 
+    def get_rate(self, entity):
+        pass
+
 
 
