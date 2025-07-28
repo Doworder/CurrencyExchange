@@ -31,6 +31,10 @@ class CurrencyHandler(BaseHTTPRequestHandler):
         message = f'Missing required field: {field_name}'
         self._send_response(400, message)
 
+    def _send_conflict_error(self, currency_code):
+        message = f'Currency with code {currency_code} already exists'
+        self._send_response(409, message)
+
     def _send_response(self, status_code: int, message=None):
         self.send_response(status_code, message)
         self.send_header('Content-type', 'text/html')
