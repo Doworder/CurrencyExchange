@@ -35,6 +35,14 @@ class CurrencyHandler(BaseHTTPRequestHandler):
         message = f'Currency with code {currency_code} already exists'
         self._send_response(409, message)
 
+    def _send_server_error(self, error_message=None, error_details=None):
+        if error_message:
+            error_message = 'An unexpected error occurred'
+        else:
+            error_message = error_message + ': ' + error_details
+
+        self._send_response(500, error_message)
+
     def _send_response(self, status_code: int, message=None):
         self.send_response(status_code, message)
         self.send_header('Content-type', 'text/html')
