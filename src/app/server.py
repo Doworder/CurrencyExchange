@@ -27,6 +27,10 @@ class CurrencyHandler(BaseHTTPRequestHandler):
     def _send_success_response(self):
         self._send_response(201)
 
+    def _send_missing_field_error(self, field_name):
+        message = f'Missing required field: {field_name}'
+        self._send_response(400, message)
+
     def _send_response(self, status_code: int, message=None):
         self.send_response(status_code, message)
         self.send_header('Content-type', 'text/html')
