@@ -20,6 +20,10 @@ class CurrencyHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(b"PATCH method called.")
 
+    def _add_currency[T](self, entity: T):
+        db = SQLiteManager(Path("data/currency.db"))
+        db.add_currency(entity)
+
 def main():
     server_address = ('', 8000)
     server = HTTPServer(server_address, CurrencyHandler)
