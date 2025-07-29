@@ -55,11 +55,17 @@ class CurrencyHandler(BaseHTTPRequestHandler):
                     self._send_server_error()
 
             case "exchangeRates":
-                new_rate = AddRateDTO(
-                    base_currency=query_data.get("baseCurrencyCode")[0],
-                    target_currency=query_data.get("targetCurrencyCode")[0],
-                    rate=float(query_data.get("rate")[0])
-                )
+                try:
+                    new_rate = AddRateDTO(
+                        base_currency=query_data.get("baseCurrencyCode")[0],
+                        target_currency=query_data.get("targetCurrencyCode")[0],
+                        rate=float(query_data.get("rate")[0])
+                    )
+                except TypeError as e:
+                    logger.debug(f'Type error: {e.args}')
+                    self._send_missing_field_error("rate")
+                    return
+
                 try:
                     self._add_rate(new_rate)
                     self._send_success_response()
