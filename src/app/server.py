@@ -64,8 +64,18 @@ class CurrencyHandler(BaseHTTPRequestHandler):
                     self._add_rate(new_rate)
                     self._send_success_response()
 
-                except sqlite3.IntegrityError:
-                    self._send_conflict_rate_error()
+                except sqlite3.IntegrityError as e:
+                    logger.debug(f'Returned error: {e.sqlite_errorname}')
+                    logger.debug(f'Returned error code: {e.sqlite_errorcode}')
+                    match e.sqlite_errorcode:
+                        case 1299:
+                            self._send_rate_not_found_error()
+
+                        case 2067:
+                            self._send_conflict_rate_error()
+
+                        case _:
+                            self._send_server_error()
 
             case _:
                 self.send_error(404)
