@@ -4,7 +4,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs
 
-from app.dao import SQLiteManager
+from app.dao import SQLiteManager, DatabaseManager
 from app.dto import AddCurrencyDTO, AddRateDTO
 
 
@@ -13,6 +13,11 @@ logging.basicConfig(level=logging.DEBUG)
 
 
 class CurrencyHandler(BaseHTTPRequestHandler):
+    db_manager: DatabaseManager
+
+    def set_db_manager(self, db_manager: DatabaseManager) -> None:
+        self.db_manager = db_manager
+
     def do_GET(self):
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
@@ -92,13 +97,11 @@ class CurrencyHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(b"PATCH method called.")
 
-    def _add_currency[T](self, entity: T):
-        db = SQLiteManager(Path("data/currency.db"))
-        db.add_currency(entity)
+    def _add_currency(self, entity):
+        self.db_manager.add_currency(entity)
 
-    def _add_rate[T](self, entity: T):
-        db = SQLiteManager(Path("data/currency.db"))
-        db.add_rate(entity)
+    def _add_rate(self, entity):
+        self.db_manager.add_rate(entity)
 
     def _send_success_response(self):
         self._send_response(201)
@@ -134,8 +137,10 @@ class CurrencyHandler(BaseHTTPRequestHandler):
         # self.wfile.write(json.dumps(data).encode("utf-8"))
 
 
-def main():
+def main() :
+    db = SQLiteManager(Path("data/currency.db"))
     server_address = ('', 8000)
+    CurrencyHandler.db_manager = db
     server = HTTPServer(server_address, CurrencyHandler)
     try:
         server.serve_forever()
