@@ -4,11 +4,14 @@ import sqlite3
 from dataclasses import asdict
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
+from typing import Any, TypeAlias
 from urllib.parse import parse_qs
 
 from app.dao import SQLiteManager, DatabaseManager
 from app.dto import AddCurrencyDTO, AddRateDTO
 
+
+ResponseData: TypeAlias = list[dict[str, Any]] | dict[str, Any] | None
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
@@ -20,7 +23,7 @@ class CurrencyHandler(BaseHTTPRequestHandler):
     def set_db_manager(self, db_manager: DatabaseManager) -> None:
         self.db_manager = db_manager
 
-    def do_GET(self):
+    def do_GET(self) -> None:
         path_part = self.path.split('/')
         match path_part[-1]:
             case "currency":
@@ -30,7 +33,7 @@ class CurrencyHandler(BaseHTTPRequestHandler):
             case _:
                 self.send_error(404)
 
-    def do_POST(self):
+    def do_POST(self) -> None:
         content_type = self.headers.get("Content-Type", "")
         if content_type != "application/x-www-form-urlencoded":
             self.send_error(400, "Content-Type must be application/x-www-form-urlencoded")
@@ -93,16 +96,16 @@ class CurrencyHandler(BaseHTTPRequestHandler):
             case _:
                 self.send_error(404)
 
-    def do_PATCH(self):
+    def do_PATCH(self) -> None:
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
         self.end_headers()
         self.wfile.write(b"PATCH method called.")
 
-    def _add_currency(self, entity):
+    def _add_currency(self, entity: AddCurrencyDTO) -> None:
         self.db_manager.add_currency(entity)
 
-    def _add_rate(self, entity):
+    def _add_rate(self, entity: AddRateDTO) -> None:
         self.db_manager.add_rate(entity)
 
     def _get_all_currency(self) -> list[dict[str, Any]]:
@@ -110,29 +113,29 @@ class CurrencyHandler(BaseHTTPRequestHandler):
         logger.debug(f'currency list: {currencies}')
         return [asdict(item) for item in currencies]
 
-    def _send_success_response_get(self, data=None):
+    def _send_success_response_get(self, data: ResponseData=None) -> None:
         self._send_response(200, data=data)
 
-    def _send_success_response_post(self):
+    def _send_success_response_post(self) -> None:
         self._send_response(201)
 
-    def _send_missing_field_error(self, field_name):
+    def _send_missing_field_error(self, field_name: str) -> None:
         message = f'Missing required field: {field_name}'
         self._send_response(400, message)
 
-    def _send_rate_not_found_error(self):
+    def _send_rate_not_found_error(self) -> None:
         message = 'The currency pair does not exist in the database'
         self._send_response(404, message)
 
-    def _send_conflict_error(self, currency_code):
+    def _send_conflict_error(self, currency_code: str) -> None:
         message = f'Currency with code {currency_code} already exists'
         self._send_response(409, message)
 
-    def _send_conflict_rate_error(self):
+    def _send_conflict_rate_error(self) -> None:
         message = f'A currency pair with this code already exists.'
         self._send_response(409, message)
 
-    def _send_server_error(self, error_message=None, error_details=None):
+    def _send_server_error(self, error_message: str | None=None, error_details: str | None=None) -> None:
         if error_message:
             error_message = 'An unexpected error occurred'
         else:
@@ -140,14 +143,14 @@ class CurrencyHandler(BaseHTTPRequestHandler):
 
         self._send_response(500, error_message)
 
-    def _send_response(self, status_code: int, message=None, data=None):
+    def _send_response(self, status_code: int, message: str | None=None, data: ResponseData=None) -> None:
         self.send_response(status_code, message)
         self.send_header('Content-type', 'text/html')
         self.end_headers()
         self.wfile.write(json.dumps(data).encode("utf-8"))
 
 
-def main() :
+def main() -> None :
     db = SQLiteManager(Path("data/currency.db"))
     server_address = ('', 8000)
     CurrencyHandler.db_manager = db
