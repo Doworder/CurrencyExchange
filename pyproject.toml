@@ -31,6 +31,7 @@ BugTracker = "https://github.com/Doworder/CurrencyExchange/issues"
 package-dir = {"" = "src"}
 
 [tool.mypy]
+mypy_path = "src/"
 strict = true
 warn_unreachable = true
 show_column_numbers = true
