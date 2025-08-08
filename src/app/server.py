@@ -20,10 +20,14 @@ class CurrencyHandler(BaseHTTPRequestHandler):
         self.db_manager = db_manager
 
     def do_GET(self):
-        self.send_response(200)
-        self.send_header('Content-type', 'text/html')
-        self.end_headers()
-        self.wfile.write(b"GET method called.")
+        path_part = self.path.split('/')
+        match path_part[-1]:
+            case "currency":
+                currency_list = self._get_all_currency()
+                self._send_success_response_get()
+
+            case _:
+                self.send_error(404)
 
     def do_POST(self):
         content_type = self.headers.get("Content-Type", "")
