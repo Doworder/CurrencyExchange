@@ -58,13 +58,13 @@ class SQLiteManager(DatabaseManager):
     @override
     def get_currency(self, entity: QueryCurrencyDTO) -> GetCurrencyDTO:
         sql = "SELECT * from Currencies WHERE Code = ?"
-        parameters = entity
+        parameters = entity.currency_code
         with self._get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute(sql, parameters)
             currency_data = cursor.fetchone()
 
-        return currency_data
+        return GetCurrencyDTO(*currency_data)
 
     @override
     def get_rate(self, entity: QueryRateDTO) -> GetRateDTO:
