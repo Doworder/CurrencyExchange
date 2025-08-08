@@ -2,9 +2,17 @@ import logging
 import sqlite3
 from pathlib import Path
 from sqlite3 import Connection
+from typing import override
 
 from app.dao import DatabaseManager
-
+from app.dto import (
+    GetCurrencyDTO,
+    GetRateDTO,
+    AddCurrencyDTO,
+    AddRateDTO,
+    QueryCurrencyDTO,
+    QueryRateDTO,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +27,8 @@ class SQLiteManager(DatabaseManager):
         logger.debug(f'Path to run module: {__file__}')
         return sqlite3.connect(self.path)
 
-    def add_currency[T](self, new_currency: T ):
+    @override
+    def add_currency(self, new_currency: AddCurrencyDTO) -> None:
         sql = "INSERT INTO Currencies (Code, FullName, Sign) VALUES (?, ?, ?)"
         parameters = (
             new_currency.currency_code,
@@ -30,7 +39,8 @@ class SQLiteManager(DatabaseManager):
             cursor = conn.cursor()
             cursor.execute(sql, parameters)
 
-    def add_rate(self, new_rate):
+    @override
+    def add_rate(self, new_rate: AddRateDTO) -> None:
         sql = '''INSERT INTO ExchangeRates (BaseCurrencyId, TargetCurrencyId, Rate) 
                         VALUES (
                         (SELECT ID FROM Currencies WHERE Code == ?), 
@@ -45,7 +55,8 @@ class SQLiteManager(DatabaseManager):
             cursor = conn.cursor()
             cursor.execute(sql, parameters)
 
-    def get_currency(self, entity):
+    @override
+    def get_currency(self, entity: QueryCurrencyDTO) -> GetCurrencyDTO:
         sql = "SELECT * from Currencies WHERE Code = ?"
         parameters = entity
         with self._get_connection() as conn:
@@ -55,13 +66,14 @@ class SQLiteManager(DatabaseManager):
 
         return currency_data
 
-    def get_rate(self, entity):
+    @override
+    def get_rate(self, entity: QueryRateDTO) -> GetRateDTO:
         pass
 
-    def update_rate(self, entity):
+    @override
+    def get_all_rate(self) -> list[GetRateDTO]:
         pass
 
-    def update_currency(self, entity):
+    @override
+    def update_currency(self, entity: GetCurrencyDTO) -> None:
         pass
-
-
