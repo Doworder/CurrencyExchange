@@ -25,7 +25,7 @@ class CurrencyHandler(BaseHTTPRequestHandler):
         match path_part[-1]:
             case "currency":
                 currency_list = self._get_all_currency()
-                self._send_success_response_get()
+                self._send_success_response_get(data=currency_list)
 
             case _:
                 self.send_error(404)
