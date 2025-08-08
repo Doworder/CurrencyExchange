@@ -104,7 +104,10 @@ class CurrencyHandler(BaseHTTPRequestHandler):
     def _add_rate(self, entity):
         self.db_manager.add_rate(entity)
 
-    def _send_success_response(self):
+    def _send_success_response_get(self, data=None):
+        self._send_response(200, data=data)
+
+    def _send_success_response_post(self):
         self._send_response(201)
 
     def _send_missing_field_error(self, field_name):
