@@ -1,3 +1,4 @@
+import json
 import logging
 import sqlite3
 from http.server import BaseHTTPRequestHandler, HTTPServer
@@ -130,11 +131,11 @@ class CurrencyHandler(BaseHTTPRequestHandler):
 
         self._send_response(500, error_message)
 
-    def _send_response(self, status_code: int, message=None):
+    def _send_response(self, status_code: int, message=None, data=None):
         self.send_response(status_code, message)
         self.send_header('Content-type', 'text/html')
         self.end_headers()
-        # self.wfile.write(json.dumps(data).encode("utf-8"))
+        self.wfile.write(json.dumps(data).encode("utf-8"))
 
 
 def main() :
