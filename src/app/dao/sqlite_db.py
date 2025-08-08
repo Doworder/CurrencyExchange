@@ -67,6 +67,18 @@ class SQLiteManager(DatabaseManager):
         return GetCurrencyDTO(*currency_data)
 
     @override
+    def get_all_currency(self) -> list[GetCurrencyDTO]:
+        sql = "SELECT * from Currencies"
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(sql)
+            currency_data = cursor.fetchall()
+
+        res: list[GetCurrencyDTO] = [GetCurrencyDTO(*currency) for currency in currency_data]
+
+        return res
+
+    @override
     def get_rate(self, entity: QueryRateDTO) -> GetRateDTO:
         pass
 
