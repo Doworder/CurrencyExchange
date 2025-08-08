@@ -87,5 +87,9 @@ class SQLiteManager(DatabaseManager):
         pass
 
     @override
+    def update_rate(self, entity: GetRateDTO) -> None:
+        pass
+
+    @override
     def update_currency(self, entity: GetCurrencyDTO) -> None:
         pass
