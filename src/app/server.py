@@ -26,10 +26,6 @@ class CurrencyHandler(BaseHTTPRequestHandler):
         self.wfile.write(b"GET method called.")
 
     def do_POST(self):
-        self.send_response(200)
-        self.send_header('Content-type', 'text/html')
-        self.end_headers()
-        self.wfile.write(b"POST method called.")
         content_type = self.headers.get("Content-Type", "")
         if content_type != "application/x-www-form-urlencoded":
             self.send_error(400, "Content-Type must be application/x-www-form-urlencoded")
@@ -51,7 +47,7 @@ class CurrencyHandler(BaseHTTPRequestHandler):
                 logger.debug(f'New currency DTO created: {new_currency}')
                 try:
                     self._add_currency(new_currency)
-                    self._send_success_response()
+                    self._send_success_response_post()
 
                 except sqlite3.IntegrityError:
                     self._send_conflict_error(new_currency.currency_code)
@@ -74,7 +70,7 @@ class CurrencyHandler(BaseHTTPRequestHandler):
 
                 try:
                     self._add_rate(new_rate)
-                    self._send_success_response()
+                    self._send_success_response_post()
 
                 except sqlite3.IntegrityError as e:
                     logger.debug(f'Returned error: {e.sqlite_errorname}')
