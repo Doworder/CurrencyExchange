@@ -56,9 +56,9 @@ class SQLiteManager(DatabaseManager):
             cursor.execute(sql, parameters)
 
     @override
-    def get_currency(self, entity: QueryCurrencyDTO) -> GetCurrencyDTO:
+    def get_currency(self, entity: QueryCurrencyDTO) -> GetCurrencyDTO | None:
         sql = "SELECT * from Currencies WHERE Code = ?"
-        parameters = entity.currency_code
+        parameters = entity.currency_code,
         with self._get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute(sql, parameters)
