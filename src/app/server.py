@@ -8,8 +8,11 @@ from typing import Any, TypeAlias
 from urllib.parse import parse_qs
 
 from app.dao import SQLiteManager, DatabaseManager
-from app.dto import AddCurrencyDTO, AddRateDTO
-
+from app.dto import (
+    AddCurrencyDTO,
+    AddRateDTO,
+    QueryCurrencyDTO,
+)
 
 ResponseData: TypeAlias = list[dict[str, Any]] | dict[str, Any] | None
 
@@ -29,6 +32,14 @@ class CurrencyHandler(BaseHTTPRequestHandler):
             case "currency":
                 currency_list = self._get_all_currency()
                 self._send_success_response_get(data=currency_list)
+
+            case s if len(s) == 3:
+                try:
+                    currency_data = self._get_currency(QueryCurrencyDTO(s))
+                    self._send_success_response_get(data=currency_data)
+
+                except ValueError:
+                    self.send_error(404)
 
             case _:
                 self.send_error(404)
@@ -107,6 +118,13 @@ class CurrencyHandler(BaseHTTPRequestHandler):
 
     def _add_rate(self, entity: AddRateDTO) -> None:
         self.db_manager.add_rate(entity)
+
+    def _get_currency(self, entity: QueryCurrencyDTO) -> dict[str, Any]:
+        currency = self.db_manager.get_currency(entity)
+        logger.debug(f'currency list: {currency}')
+        if currency is None:
+            raise ValueError("Currency not found")
+        return asdict(currency)
 
     def _get_all_currency(self) -> list[dict[str, Any]]:
         currencies = self.db_manager.get_all_currency()
