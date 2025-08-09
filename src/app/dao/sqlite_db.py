@@ -63,6 +63,8 @@ class SQLiteManager(DatabaseManager):
             cursor = conn.cursor()
             cursor.execute(sql, parameters)
             currency_data = cursor.fetchone()
+            if currency_data is None:
+                return currency_data
 
         return GetCurrencyDTO(*currency_data)
 
