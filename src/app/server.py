@@ -2,6 +2,7 @@ import json
 import logging
 import sqlite3
 from dataclasses import asdict
+from decimal import Decimal
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 from typing import Any, TypeAlias
@@ -99,7 +100,7 @@ class CurrencyHandler(BaseHTTPRequestHandler):
                     new_rate = AddRateDTO(
                         base_currency=query_data.get("baseCurrencyCode")[0],
                         target_currency=query_data.get("targetCurrencyCode")[0],
-                        rate=float(query_data.get("rate")[0])
+                        rate=Decimal(query_data.get("rate")[0])
                     )
                 except TypeError as e:
                     logger.debug(f'Type error: {e.args}')
