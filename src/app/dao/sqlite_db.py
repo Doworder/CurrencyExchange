@@ -132,7 +132,7 @@ class SQLiteManager(DatabaseManager):
         if base_currency is None or target_currency is None:
             raise ValueError("Currency not found")
         sql = "UPDATE ExchangeRates SET Rate=? WHERE BaseCurrencyId=? AND TargetCurrencyId=?"
-        parameters = entity.rate, base_currency.id, target_currency.id
+        parameters = float(entity.rate), base_currency.id, target_currency.id
         with self._get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute(sql, parameters)
