@@ -41,6 +41,11 @@ class CurrencyHandler(BaseHTTPRequestHandler):
                 except ValueError:
                     self.send_error(404)
 
+            case "exchangeRates":
+                rate_list = self._get_all_rate()
+                self._send_success_response_get(data=rate_list)
+
+
             case _:
                 self.send_error(404)
 
@@ -130,6 +135,11 @@ class CurrencyHandler(BaseHTTPRequestHandler):
         currencies = self.db_manager.get_all_currency()
         logger.debug(f'currency list: {currencies}')
         return [asdict(item) for item in currencies]
+
+    def _get_all_rate(self) -> list[dict[str, Any]]:
+        rates = self.db_manager.get_all_rate()
+        logger.debug(f'currency list: {rates}')
+        return [asdict(item) for item in rates]
 
     def _send_success_response_get(self, data: ResponseData=None) -> None:
         self._send_response(200, data=data)
