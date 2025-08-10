@@ -216,7 +216,7 @@ class CurrencyHandler(BaseHTTPRequestHandler):
         self._send_response(409, message)
 
     def _send_server_error(self, error_message: str | None=None, error_details: str | None=None) -> None:
-        if error_message:
+        if error_message is None:
             error_message = 'An unexpected error occurred'
         else:
             error_message = error_message + ': ' + error_details
