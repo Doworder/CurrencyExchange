@@ -193,6 +193,9 @@ class CurrencyHandler(BaseHTTPRequestHandler):
         logger.debug(f'currency list: {rates}')
         return [asdict(item) for item in rates]
 
+    def _update_rate(self, entity: UpdateRateDTO) -> None:
+        self.db_manager.update_rate(entity)
+
     def _send_success_response_get(self, data: ResponseData=None) -> None:
         self._send_response(200, data=data)
 
