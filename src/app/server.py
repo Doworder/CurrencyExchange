@@ -146,6 +146,13 @@ class CurrencyHandler(BaseHTTPRequestHandler):
         logger.debug(f'currency list: {currencies}')
         return [asdict(item) for item in currencies]
 
+    def _get_rate(self, entity: QueryRateDTO) -> dict[str, Any]:
+        rate = self.db_manager.get_rate(entity)
+        logger.debug(f'rate list: {rate}')
+        if rate is None:
+            raise ValueError("Currency not found")
+        return asdict(rate)
+
     def _get_all_rate(self) -> list[dict[str, Any]]:
         rates = self.db_manager.get_all_rate()
         logger.debug(f'currency list: {rates}')
