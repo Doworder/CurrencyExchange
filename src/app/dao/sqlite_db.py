@@ -81,8 +81,24 @@ class SQLiteManager(DatabaseManager):
         return res
 
     @override
-    def get_rate(self, entity: QueryRateDTO) -> GetRateDTO:
-        pass
+    def get_rate(self, entity: QueryRateDTO) -> GetRateDTO | None:
+        base_currency = self.get_currency(QueryCurrencyDTO(entity.base_currency))
+        target_currency = self.get_currency(QueryCurrencyDTO(entity.target_currency))
+        if base_currency is None or target_currency is None:
+            return None
+        sql = "SELECT * FROM ExchangeRates WHERE BaseCurrencyId=? AND TargetCurrencyId=?"
+        parameters = base_currency.id, target_currency.id
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(sql, parameters)
+            rate_data = cursor.fetchone()
+
+        return GetRateDTO(
+            id=rate_data[0],
+            base_currency=base_currency,
+            target_currency=target_currency,
+            rate=rate_data[3]
+        )
 
     @override
     def get_all_rate(self) -> list[GetRateDTO]:
