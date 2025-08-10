@@ -7,6 +7,7 @@ from app.dto import (
     GetRateDTO,
     QueryCurrencyDTO,
     QueryRateDTO,
+    UpdateRateDTO,
 )
 
 
@@ -33,4 +34,4 @@ class DatabaseManager(ABC):
     def update_currency(self, entity: GetCurrencyDTO) -> None: ...
 
     @abstractmethod
-    def update_rate(self, entity: GetRateDTO) -> None: ...
+    def update_rate(self, entity: UpdateRateDTO) -> None: ...
