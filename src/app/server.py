@@ -12,6 +12,7 @@ from app.dto import (
     AddCurrencyDTO,
     AddRateDTO,
     QueryCurrencyDTO,
+    QueryRateDTO,
 )
 
 ResponseData: TypeAlias = list[dict[str, Any]] | dict[str, Any] | None
@@ -45,6 +46,15 @@ class CurrencyHandler(BaseHTTPRequestHandler):
                 rate_list = self._get_all_rate()
                 self._send_success_response_get(data=rate_list)
 
+            case r if len(r) == 6 and path_part[-2] == "exchangeRate":
+                try:
+                    base_currency = r[:3]
+                    target_currency = r[3:]
+                    rate_data = self._get_rate(QueryRateDTO(base_currency, target_currency))
+                    self._send_success_response_get(data=rate_data)
+
+                except ValueError:
+                    self.send_error(404)
 
             case _:
                 self.send_error(404)
