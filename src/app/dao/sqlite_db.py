@@ -12,6 +12,7 @@ from app.dto import (
     AddRateDTO,
     QueryCurrencyDTO,
     QueryRateDTO,
+    UpdateRateDTO,
 )
 
 logger = logging.getLogger(__name__)
@@ -125,6 +126,13 @@ class SQLiteManager(DatabaseManager):
         return res
 
     @override
-    def update_rate(self, entity: GetRateDTO) -> None:
-        pass
-
+    def update_rate(self, entity: UpdateRateDTO) -> None:
+        base_currency = self.get_currency(QueryCurrencyDTO(entity.base_currency))
+        target_currency = self.get_currency(QueryCurrencyDTO(entity.target_currency))
+        if base_currency is None or target_currency is None:
+            raise ValueError("Currency not found")
+        sql = "UPDATE ExchangeRates SET Rate=? WHERE BaseCurrencyId=? AND TargetCurrencyId=?"
+        parameters = entity.rate, base_currency.id, target_currency.id
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(sql, parameters)
