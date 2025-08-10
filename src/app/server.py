@@ -43,6 +43,9 @@ class CurrencyHandler(BaseHTTPRequestHandler):
                 except ValueError:
                     self.send_error(404)
 
+            case r if not len(r) or "exchangeRate":
+                self.send_error(400, message="The currency codes of the pair are missing in the address")
+
             case "exchangeRates":
                 rate_list = self._get_all_rate()
                 self._send_success_response_get(data=rate_list)
