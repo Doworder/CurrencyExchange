@@ -86,7 +86,27 @@ class SQLiteManager(DatabaseManager):
 
     @override
     def get_all_rate(self) -> list[GetRateDTO]:
-        pass
+        sql = "SELECT * from ExchangeRates"
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(sql)
+            rate_data = cursor.fetchall()
+            logger.debug(f"Rate data: {rate_data}")
+            column_names = ["id", "base_currency", "target_currency", "rate"]
+            rate_list_dict = [{key: value for key, value in zip(column_names, rate)} for rate in rate_data]
+            for rate in rate_list_dict:
+                for key in rate.keys():
+                    if key == column_names[1] or key == column_names[2]:
+                        cur_id = rate.get(key)
+                        cursor.execute(f"SELECT * from Currencies WHERE ID = {cur_id}")
+                        rate[key] = GetCurrencyDTO(*cursor.fetchone())
+
+            logger.debug(f"Rate list: {rate_list_dict}")
+
+
+        res: list[GetRateDTO] = [GetRateDTO(**rate) for rate in rate_list_dict]
+
+        return res
 
     @override
     def update_rate(self, entity: GetRateDTO) -> None:
