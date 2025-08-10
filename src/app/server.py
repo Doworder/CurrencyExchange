@@ -13,7 +13,7 @@ from app.dto import (
     AddCurrencyDTO,
     AddRateDTO,
     QueryCurrencyDTO,
-    QueryRateDTO,
+    QueryRateDTO, UpdateRateDTO,
 )
 
 ResponseData: TypeAlias = list[dict[str, Any]] | dict[str, Any] | None
@@ -128,10 +128,40 @@ class CurrencyHandler(BaseHTTPRequestHandler):
                 self.send_error(404)
 
     def do_PATCH(self) -> None:
-        self.send_response(200)
-        self.send_header('Content-type', 'text/html')
-        self.end_headers()
-        self.wfile.write(b"PATCH method called.")
+        content_type = self.headers.get("Content-Type", "")
+        if content_type != "application/x-www-form-urlencoded":
+            self.send_error(400, "Content-Type must be application/x-www-form-urlencoded")
+            return
+
+        content_length = int(self.headers.get("Content-Length", 0))
+        patch_data = self.rfile.read(content_length)
+        query_data: dict[str, list[str]] = parse_qs(patch_data.decode("utf-8"))
+        logger.debug(f'Query data: {query_data}')
+
+        path_part = self.path.split('/')
+        logger.debug(f"Parted path: {path_part}")
+        match path_part[-1]:
+            case r if len(r) == 6 and path_part[-2] == "exchangeRate":
+                try:
+                    base_currency = r[:3]
+                    target_currency = r[3:]
+                    new_rate_value = UpdateRateDTO(
+                        base_currency=base_currency,
+                        target_currency=target_currency,
+                        rate=Decimal(query_data.get("rate")[0])
+                    )
+                    logger.debug(f"Rate decimal: {Decimal(query_data.get('rate')[0])}")
+                    self._update_rate(new_rate_value)
+                    self._send_success_response_get()
+
+                except ValueError:
+                    self.send_error(404, message="The currency pair is missing from the database")
+
+                # except sqlite3.ProgrammingError:
+                #     self._send_server_error()
+
+            case _:
+                self.send_error(404)
 
     def _add_currency(self, entity: AddCurrencyDTO) -> None:
         self.db_manager.add_currency(entity)
