@@ -110,7 +110,11 @@ class CurrencyHandler(BaseHTTPRequestHandler):
 
                 try:
                     self._add_rate(new_rate)
-                    self._send_success_response_post()
+                    rate_data = self._get_rate(QueryRateDTO(
+                        base_currency=new_rate.base_currency,
+                        target_currency=new_rate.target_currency
+                    ))
+                    self._send_success_response_post(rate_data)
 
                 except sqlite3.IntegrityError as e:
                     logger.debug(f'Returned error: {e.sqlite_errorname}')
