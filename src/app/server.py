@@ -86,7 +86,8 @@ class CurrencyHandler(BaseHTTPRequestHandler):
                 logger.debug(f'New currency DTO created: {new_currency}')
                 try:
                     self._add_currency(new_currency)
-                    self._send_success_response_post()
+                    currency_data = self._get_currency(QueryCurrencyDTO(currency_code=new_currency.currency_code))
+                    self._send_success_response_post(currency_data)
 
                 except sqlite3.IntegrityError:
                     self._send_conflict_error(new_currency.currency_code)
