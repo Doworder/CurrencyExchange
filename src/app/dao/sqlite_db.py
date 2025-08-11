@@ -50,7 +50,7 @@ class SQLiteManager(DatabaseManager):
         parameters = (
             new_rate.base_currency,
             new_rate.target_currency,
-            new_rate.rate
+            float(new_rate.rate)
         )
         with self._get_connection() as conn:
             cursor = conn.cursor()
