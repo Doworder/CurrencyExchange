@@ -93,6 +93,10 @@ class SQLiteManager(DatabaseManager):
             cursor = conn.cursor()
             cursor.execute(sql, parameters)
             rate_data = cursor.fetchone()
+            logger.debug(f"Rate data: {rate_data}")
+
+        if rate_data is None:
+            return None
 
         return GetRateDTO(
             id=rate_data[0],
