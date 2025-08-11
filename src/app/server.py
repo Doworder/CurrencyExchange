@@ -157,7 +157,11 @@ class CurrencyHandler(BaseHTTPRequestHandler):
                     )
                     logger.debug(f"Rate decimal: {Decimal(query_data.get('rate')[0])}")
                     self._update_rate(new_rate_value)
-                    self._send_success_response_get()
+                    rate_data = self._get_rate(QueryRateDTO(
+                        base_currency=new_rate_value.base_currency,
+                        target_currency=new_rate_value.target_currency
+                    ))
+                    self._send_success_response_get(rate_data)
 
                 except ValueError:
                     self.send_error(404, message="The currency pair is missing from the database")
