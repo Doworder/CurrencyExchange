@@ -32,11 +32,11 @@ class CurrencyHandler(BaseHTTPRequestHandler):
         path_part = self.path.split('/')
         logger.debug(f"Parted path: {path_part}")
         match path_part[-1]:
-            case "currency":
+            case "currencies":
                 currency_list = self._get_all_currency()
                 self._send_success_response_get(data=currency_list)
 
-            case s if len(s) == 3:
+            case s if len(s) == 3 and path_part[-2] == "currency":
                 try:
                     currency_data = self._get_currency(QueryCurrencyDTO(s))
                     self._send_success_response_get(data=currency_data)
