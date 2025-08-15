@@ -1,5 +1,6 @@
 import logging
 import sqlite3
+from decimal import Decimal
 from pathlib import Path
 from sqlite3 import Connection
 from typing import override
@@ -102,7 +103,7 @@ class SQLiteManager(DatabaseManager):
             id=rate_data[0],
             base_currency=base_currency,
             target_currency=target_currency,
-            rate=rate_data[3]
+            rate=Decimal(rate_data[3])
         )
 
     @override
