@@ -313,7 +313,7 @@ class CurrencyHandler(BaseHTTPRequestHandler):
         self.send_response(status_code, message)
         self.send_header('Content-type', 'text/html')
         self.end_headers()
-        self.wfile.write(json.dumps(data).encode("utf-8"))
+        self.wfile.write(json.dumps(data, default=str).encode("utf-8"))
 
 
 def main() -> None :
