@@ -6,7 +6,7 @@ from decimal import Decimal
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 from typing import Any, TypeAlias
-from urllib.parse import parse_qs
+from urllib.parse import parse_qs, urlparse
 
 from app.dao import SQLiteManager, DatabaseManager
 from app.dto import (
@@ -68,7 +68,25 @@ class CurrencyHandler(BaseHTTPRequestHandler):
                     self.send_error(404)
 
             case _:
-                self.send_error(404)
+                parsed_path = urlparse(self.path)
+                logger.debug(f"Parsed path: {parsed_path}")
+                if parsed_path.path == "/exchange":
+                    query_params = parse_qs(parsed_path.query)
+                    try:
+                        exchange_data: GetExchangeDTO = self._exchange_currency(QueryExchangeDTO(
+                            base_currency=query_params.get("from")[0],
+                            target_currency=query_params.get("to")[0],
+                            amount=Decimal(query_params.get("amount")[0])
+                        ))
+                        logger.debug(f"ExchangeDTO: {exchange_data}")
+                        self._send_success_response_get(data=asdict(exchange_data))
+
+                    except ValueError as e:
+                        logger.debug(f"Error: {e.args}")
+                        self._send_rate_not_found_error()
+
+                else:
+                    self.send_error(404)
 
     def do_POST(self) -> None:
         content_type = self.headers.get("Content-Type", "")
