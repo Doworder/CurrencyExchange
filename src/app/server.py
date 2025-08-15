@@ -12,8 +12,11 @@ from app.dao import SQLiteManager, DatabaseManager
 from app.dto import (
     AddCurrencyDTO,
     AddRateDTO,
+    GetExchangeDTO,
     QueryCurrencyDTO,
-    QueryRateDTO, UpdateRateDTO,
+    QueryRateDTO,
+    QueryExchangeDTO,
+    UpdateRateDTO,
 )
 
 ResponseData: TypeAlias = list[dict[str, Any]] | dict[str, Any] | None
@@ -207,6 +210,56 @@ class CurrencyHandler(BaseHTTPRequestHandler):
 
     def _update_rate(self, entity: UpdateRateDTO) -> None:
         self.db_manager.update_rate(entity)
+
+    def _exchange_currency(self, entity:QueryExchangeDTO) -> GetExchangeDTO:
+        direct_course = self.db_manager.get_rate(QueryRateDTO(
+            base_currency=entity.base_currency,
+            target_currency=entity.target_currency
+        ))
+
+        if direct_course is None:
+            reverse_course = self.db_manager.get_rate(QueryRateDTO(
+                base_currency=entity.target_currency,
+                target_currency=entity.base_currency
+            ))
+
+            if reverse_course is None:
+                """cross curse"""
+                usd_to_base_currency = self.db_manager.get_rate(QueryRateDTO(
+                    base_currency="USD",
+                    target_currency=entity.base_currency
+                ))
+                if usd_to_base_currency is None:
+                    raise ValueError("Currency not found")
+
+                usd_to_target_currency = self.db_manager.get_rate(QueryRateDTO(
+                    base_currency="USD",
+                    target_currency=entity.target_currency
+                ))
+                if usd_to_target_currency is None:
+                    raise ValueError("Currency not found")
+
+                return GetExchangeDTO(
+                    base_currency=usd_to_base_currency.target_currency,
+                    target_currency=usd_to_target_currency.target_currency,
+                    rate=(usd_to_target_currency.rate / usd_to_base_currency.rate),
+                    amount=entity.amount
+                )
+
+            return GetExchangeDTO(
+                base_currency=reverse_course.target_currency,
+                target_currency=reverse_course.base_currency,
+                rate=(1 / reverse_course.rate),
+                amount=entity.amount,
+            )
+        logger.debug(f"Direct rate: {direct_course.rate} as type: {type(direct_course.rate)}")
+
+        return GetExchangeDTO(
+            base_currency=direct_course.base_currency,
+            target_currency=direct_course.target_currency,
+            rate=direct_course.rate,
+            amount=entity.amount,
+        )
 
     def _send_success_response_get(self, data: ResponseData=None) -> None:
         self._send_response(200, data=data)
