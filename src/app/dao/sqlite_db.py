@@ -6,10 +6,10 @@ from typing import override
 
 from app.dao import DatabaseManager
 from app.dto import (
-    GetCurrencyDTO,
-    GetRateDTO,
     AddCurrencyDTO,
     AddRateDTO,
+    GetCurrencyDTO,
+    GetRateDTO,
     QueryCurrencyDTO,
     QueryRateDTO,
     UpdateRateDTO,
