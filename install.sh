@@ -2,10 +2,10 @@
 
 # Настройки
 APP_NAME="CurrencyExchange"
-REPO_DIR="./$APP_NAME"
+REPO_DIR="../$APP_NAME"
 WWW_DIR="/var/www/$APP_NAME"
+VENV_DIR="$WWW_DIR/venv"
 SERVICE_FILE="/etc/systemd/system/$APP_NAME.service"
-PYTHON_PATH="/usr/bin/python3"
 
 # Список файлов и папок для копирования
 FILES_TO_COPY=(
@@ -19,6 +19,12 @@ FILES_TO_COPY=(
 # Проверка прав
 if [ "$EUID" -ne 0 ]; then
     echo "Запустите скрипт с sudo правами"
+    exit 1
+fi
+
+# Проверка существования репозитория
+if [ ! -d "$REPO_DIR" ]; then
+    echo "Ошибка: Репозиторий $REPO_DIR не найден"
     exit 1
 fi
 
@@ -42,23 +48,27 @@ done
 chown -R www-data:www-data $WWW_DIR
 chmod -R 755 $WWW_DIR
 
-# Установка зависимостей Python из pyproject.toml
+# Создание виртуального окружения
+echo "Создание виртуального окружения..."
+sudo -u www-data python3 -m venv $VENV_DIR
+
+# Активация виртуального окружения и установка зависимостей
+echo "Установка зависимостей Python из pyproject.toml..."
 if [ -f "$WWW_DIR/pyproject.toml" ]; then
-    echo "Установка Python зависимостей из pyproject.toml..."
+    # Установка build в виртуальном окружении
+    sudo -u www-data $VENV_DIR/bin/pip install --upgrade pip
+    sudo -u www-data $VENV_DIR/bin/pip install build
 
-    # Проверяем, установлен ли build (необходим для установки из pyproject.toml)
-    pip3 install --upgrade pip
-    pip3 install build
-
-    # Создаем wheel пакет и устанавливаем его
+    # Создание wheel пакета и установка
     cd $WWW_DIR
-    python3 -m build --wheel
-    pip3 install dist/*.whl
+    sudo -u www-data $VENV_DIR/bin/python -m build --wheel
+    sudo -u www-data $VENV_DIR/bin/pip install dist/*.whl
 
-    # Альтернативный способ: установка в режиме разработки (если поддерживается)
-    # pip3 install -e .
+    # Альтернатива: установка в режиме разработки
+    # sudo -u www-data $VENV_DIR/bin/pip install -e .
 else
-    echo "Предупреждение: pyproject.toml не найден, зависимости не установлены"
+    echo "Ошибка: pyproject.toml не найден"
+    exit 1
 fi
 
 # Создание systemd сервиса
@@ -73,9 +83,9 @@ Type=simple
 User=www-data
 Group=www-data
 WorkingDirectory=$WWW_DIR
-Environment=PYTHONPATH=$WWW_DIR
-ExecStartPre=$PYTHON_PATH $WWW_DIR/init_database.py
-ExecStart=$PYTHON_PATH -m app.server
+Environment=PYTHONUNBUFFERED=1
+ExecStartPre=$VENV_DIR/bin/python $WWW_DIR/init_database.py
+ExecStart=$VENV_DIR/bin/python -m app.server
 Restart=always
 RestartSec=5
 StandardOutput=journal
@@ -89,19 +99,29 @@ EOF
 echo "Активация сервиса..."
 systemctl daemon-reload
 systemctl enable $APP_NAME.service
+
+echo "Запуск сервиса..."
 systemctl start $APP_NAME.service
 
-echo "Установка завершена! Статус сервиса:"
-systemctl status $APP_NAME.service
+# Проверка статуса
+echo "Проверка статуса сервиса..."
+sleep 3
+systemctl status $APP_NAME.service --no-pager
 
 # Полезные команды для проверки
 echo "
+Установка завершена!
+
 Для проверки логов используйте:
-journalctl -u $APP_NAME.service -f
+sudo journalctl -u $APP_NAME.service -f
 
 Для перезапуска сервиса:
-systemctl restart $APP_NAME.service
+sudo systemctl restart $APP_NAME.service
 
 Для проверки статуса:
-systemctl status $APP_NAME.service
+sudo systemctl status $APP_NAME.service
+
+Файлы приложения находятся в: $WWW_DIR
+Виртуальное окружение в: $VENV_DIR
+Service файл: $SERVICE_FILE
 "
