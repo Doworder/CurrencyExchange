@@ -33,8 +33,13 @@ class CurrencyHandler(BaseHTTPRequestHandler):
         logger.debug(f"Parted path: {path_part}")
         match path_part[-1]:
             case "currencies":
+                try:
                     currency_list = self._get_all_currency()
                     self._send_success_response_get(data=currency_list)
+
+                except sqlite3.OperationalError as e:
+                    logger.debug(e.args)
+                    self._send_server_error()
 
             case s if len(s) == 3:
                 try:
