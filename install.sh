@@ -75,7 +75,7 @@ Group=www-data
 WorkingDirectory=$WWW_DIR
 Environment=PYTHONPATH=$WWW_DIR
 ExecStartPre=$PYTHON_PATH $WWW_DIR/init_database.py
-ExecStart=$PYTHON_PATH $WWW_DIR/main.py
+ExecStart=$PYTHON_PATH -m app.server
 Restart=always
 RestartSec=5
 StandardOutput=journal
