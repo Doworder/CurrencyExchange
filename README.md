@@ -39,6 +39,7 @@ pip install .
 git
 python3.12
 pip
+venv
 ```
 
 1) Склонировать репозиторий
