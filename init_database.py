@@ -1,6 +1,16 @@
+import os
 import sqlite3
 from pathlib import Path
 from sqlite3 import OperationalError
+
+# Проверка директории с базой
+DIRECTORY = 'data'
+
+if not os.path.exists(DIRECTORY):
+    os.makedirs(DIRECTORY)
+    print(f'Директория {DIRECTORY} успешно создана.')
+else:
+    print(f'Директория {DIRECTORY} уже существует.')
 
 connection = sqlite3.connect(Path("data/currency.db"))
 cursor = connection.cursor()
