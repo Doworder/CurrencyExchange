@@ -196,6 +196,13 @@ class CurrencyHandler(BaseHTTPRequestHandler):
             case _:
                 self.send_error(404)
 
+    def end_headers(self):
+        # Добавляем CORS-заголовки ко всем ответам
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', '*')
+        self.send_header('Access-Control-Allow-Headers', '*')
+        super().end_headers()
+
     def _add_currency(self, entity: AddCurrencyDTO) -> None:
         self.db_manager.add_currency(entity)
 
