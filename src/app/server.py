@@ -90,7 +90,7 @@ class CurrencyHandler(BaseHTTPRequestHandler):
 
     def do_POST(self) -> None:
         content_type = self.headers.get("Content-Type", "")
-        if content_type != "application/x-www-form-urlencoded":
+        if content_type.split(';')[0].strip() != "application/x-www-form-urlencoded":
             self.send_error(400, "Content-Type must be application/x-www-form-urlencoded")
             return
 
@@ -158,7 +158,7 @@ class CurrencyHandler(BaseHTTPRequestHandler):
 
     def do_PATCH(self) -> None:
         content_type = self.headers.get("Content-Type", "")
-        if content_type != "application/x-www-form-urlencoded":
+        if content_type.split(';')[0].strip() != "application/x-www-form-urlencoded":
             self.send_error(400, "Content-Type must be application/x-www-form-urlencoded")
             return
 
