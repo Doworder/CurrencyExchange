@@ -74,9 +74,9 @@ class CurrencyHandler(BaseHTTPRequestHandler):
                     query_params = parse_qs(parsed_path.query)
                     try:
                         exchange_data: GetExchangeDTO = self._exchange_currency(QueryExchangeDTO(
-                            base_currency=query_params.get("from")[0],
-                            target_currency=query_params.get("to")[0],
-                            amount=Decimal(query_params.get("amount")[0])
+                            base_currency=query_params.get("from", [''])[0],
+                            target_currency=query_params.get("to", [''])[0],
+                            amount=Decimal(query_params.get("amount", [''])[0])
                         ))
                         logger.debug(f"ExchangeDTO: {exchange_data}")
                         self._send_success_response_get(data=asdict(exchange_data))
@@ -103,9 +103,9 @@ class CurrencyHandler(BaseHTTPRequestHandler):
         match path_part[-1]:
             case "currencies":
                 new_currency = AddCurrencyDTO(
-                    currency_code=query_data.get("code")[0],
-                    full_name=query_data.get("name")[0],
-                    sign=query_data.get("sign")[0]
+                    currency_code=query_data.get("code", [''])[0],
+                    full_name=query_data.get("name", [''])[0],
+                    sign=query_data.get("sign", [''])[0]
                 )
                 logger.debug(f'New currency DTO created: {new_currency}')
                 try:
@@ -123,9 +123,9 @@ class CurrencyHandler(BaseHTTPRequestHandler):
             case "exchangeRates":
                 try:
                     new_rate = AddRateDTO(
-                        base_currency=query_data.get("baseCurrencyCode")[0],
-                        target_currency=query_data.get("targetCurrencyCode")[0],
-                        rate=Decimal(query_data.get("rate")[0])
+                        base_currency=query_data.get("baseCurrencyCode", [''])[0],
+                        target_currency=query_data.get("targetCurrencyCode", [''])[0],
+                        rate=Decimal(query_data.get("rate", [''])[0])
                     )
                 except TypeError as e:
                     logger.debug(f'Type error: {e.args}')
@@ -177,9 +177,9 @@ class CurrencyHandler(BaseHTTPRequestHandler):
                     new_rate_value = UpdateRateDTO(
                         base_currency=base_currency,
                         target_currency=target_currency,
-                        rate=Decimal(query_data.get("rate")[0])
+                        rate=Decimal(query_data.get("rate", [''])[0])
                     )
-                    logger.debug(f"Rate decimal: {Decimal(query_data.get('rate')[0])}")
+                    logger.debug(f"Rate decimal: {Decimal(query_data.get('rate', [''])[0])}")
                     self._update_rate(new_rate_value)
                     rate_data = self._get_rate(QueryRateDTO(
                         base_currency=new_rate_value.base_currency,
