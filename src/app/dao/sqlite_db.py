@@ -2,7 +2,7 @@ import logging
 import sqlite3
 from decimal import Decimal
 from pathlib import Path
-from sqlite3 import Connection
+from sqlite3 import Connection, register_adapter, register_converter, PARSE_DECLTYPES
 from typing import override
 
 from app.dao import DatabaseManager
@@ -18,6 +18,16 @@ from app.dto import (
 
 logger = logging.getLogger(__name__)
 
+def adapt_decimal(d: Decimal) -> str:
+    return str(d)
+
+def convert_decimal(s: bytes):
+    return Decimal(s.decode('utf-8'))
+
+register_adapter(Decimal, adapt_decimal)
+register_converter("NUMERIC", convert_decimal)
+
+
 
 class SQLiteManager(DatabaseManager):
     """SQLite connector"""
@@ -27,7 +37,7 @@ class SQLiteManager(DatabaseManager):
     def _get_connection(self) -> Connection:
         logger.debug(f'Path to database: {self.path}')
         logger.debug(f'Path to run module: {__file__}')
-        return sqlite3.connect(self.path)
+        return sqlite3.connect(self.path, detect_types=PARSE_DECLTYPES)
 
     @override
     def add_currency(self, new_currency: AddCurrencyDTO) -> None:
@@ -51,8 +61,9 @@ class SQLiteManager(DatabaseManager):
         parameters = (
             new_rate.base_currency,
             new_rate.target_currency,
-            float(new_rate.rate)
+            new_rate.rate
         )
+
         with self._get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute(sql, parameters)
@@ -137,7 +148,7 @@ class SQLiteManager(DatabaseManager):
         if base_currency is None or target_currency is None:
             raise ValueError("Currency not found")
         sql = "UPDATE ExchangeRates SET Rate=? WHERE BaseCurrencyId=? AND TargetCurrencyId=?"
-        parameters = float(entity.rate), base_currency.id, target_currency.id
+        parameters = entity.rate, base_currency.id, target_currency.id
         with self._get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute(sql, parameters)
