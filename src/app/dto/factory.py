@@ -1,4 +1,5 @@
 from dataclasses import fields
+from decimal import Decimal
 from typing import Type, TypeVar, Any
 
 T = TypeVar('T')
@@ -16,7 +17,7 @@ class GetDTOFactory:
     @staticmethod
     def from_tuple(
             dto_class: Type[T],
-            tuple_data: tuple[int, str|int, str|int, str|float]
+            tuple_data: tuple[int, str|int, str|int, str|Decimal]
     ) -> T:
         field_names = [f.name for f in fields(dto_class)]
         field_values = dict(zip(field_names, tuple_data))
@@ -25,7 +26,7 @@ class GetDTOFactory:
     @staticmethod
     def list_from_tuple(
             dto_class: Type[T],
-            tuple_data: list[tuple[int,str|int, str|int, str|float]]
+            tuple_data: list[tuple[int,str|int, str|int, str|Decimal]]
     ) -> list[T]:
         res = []
         field_names = [f.name for f in fields(dto_class)]
