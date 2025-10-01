@@ -5,8 +5,8 @@ from decimal import Decimal
 @dataclass
 class GetCurrencyDTO:
     id: int
-    currency_code: str
-    full_name: str
+    code: str
+    name: str
     sign: str
 
 
