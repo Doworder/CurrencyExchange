@@ -13,8 +13,8 @@ class GetCurrencyDTO:
 @dataclass
 class GetRateDTO:
     id: int
-    base_currency: GetCurrencyDTO
-    target_currency: GetCurrencyDTO
+    baseCurrency: GetCurrencyDTO
+    targetCurrency: GetCurrencyDTO
     rate: Decimal
 
 

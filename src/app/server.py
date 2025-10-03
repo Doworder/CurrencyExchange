@@ -265,23 +265,23 @@ class CurrencyHandler(BaseHTTPRequestHandler):
                     raise ValueError("Currency not found")
 
                 return GetExchangeDTO(
-                    base_currency=usd_to_base_currency.target_currency,
-                    target_currency=usd_to_target_currency.target_currency,
+                    base_currency=usd_to_base_currency.targetCurrency,
+                    target_currency=usd_to_target_currency.targetCurrency,
                     rate=(usd_to_target_currency.rate / usd_to_base_currency.rate),
                     amount=entity.amount
                 )
 
             return GetExchangeDTO(
-                base_currency=reverse_course.target_currency,
-                target_currency=reverse_course.base_currency,
+                base_currency=reverse_course.targetCurrency,
+                target_currency=reverse_course.baseCurrency,
                 rate=(1 / reverse_course.rate),
                 amount=entity.amount,
             )
         logger.debug(f"Direct rate: {direct_course.rate} as type: {type(direct_course.rate)}")
 
         return GetExchangeDTO(
-            base_currency=direct_course.base_currency,
-            target_currency=direct_course.target_currency,
+            base_currency=direct_course.baseCurrency,
+            target_currency=direct_course.targetCurrency,
             rate=direct_course.rate,
             amount=entity.amount,
         )
