@@ -20,11 +20,11 @@ class GetRateDTO:
 
 @dataclass
 class GetExchangeDTO:
-    base_currency: GetCurrencyDTO
-    target_currency: GetCurrencyDTO
+    baseCurrency: GetCurrencyDTO
+    targetCurrency: GetCurrencyDTO
     rate: Decimal
     amount:Decimal
-    converted_amount: Decimal = field(init=False)
+    convertedAmount: Decimal = field(init=False)
 
     def __post_init__(self) -> None:
-        self.converted_amount = self.rate * self.amount
+        self.convertedAmount = self.rate * self.amount
