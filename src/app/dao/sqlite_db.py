@@ -112,8 +112,8 @@ class SQLiteManager(DatabaseManager):
 
         return GetRateDTO(
             id=rate_data[0],
-            base_currency=base_currency,
-            target_currency=target_currency,
+            baseCurrency=base_currency,
+            targetCurrency=target_currency,
             rate=Decimal(rate_data[3])
         )
 
@@ -125,7 +125,7 @@ class SQLiteManager(DatabaseManager):
             cursor.execute(sql)
             rate_data = cursor.fetchall()
             logger.debug(f"Rate data: {rate_data}")
-            column_names = ["id", "base_currency", "target_currency", "rate"]
+            column_names = ["id", "baseCurrency", "targetCurrency", "rate"]
             rate_list_dict = [{key: value for key, value in zip(column_names, rate)} for rate in rate_data]
             for rate in rate_list_dict:
                 for key in rate.keys():
